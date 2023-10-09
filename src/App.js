@@ -47,7 +47,7 @@ export default function App() {
           onClick={() => {
             dispatch({ type: "openAccount" });
           }}
-          disabled={false}
+          disabled={isActive}
         >
           Open account
         </button>
