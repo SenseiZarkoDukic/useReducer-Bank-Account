@@ -25,19 +25,37 @@ const initialState = {
 };
 
 function reducer(state, action) {
+  if (!state.isActive && action.type !== "openAccount") return state;
+
   switch (action.type) {
     case "openAccount":
       return { ...state, isActive: true, balance: 500 };
     case "deposit":
-      return { ...state, balance: state.balance + 150 };
+      return { ...state, balance: state.balance + action.payload };
     case "withdraw":
-      return { ...state, balance: state.balance >= 50 && state.balance - 50 };
+      if (state.balance < action.payload) return state;
+      return {
+        ...state,
+        balance: state.balance - action.payload,
+      };
     case "requestLoan":
-      return { ...state, loan: 5000, balance: state.balance + 5000 };
+      if (state.loan > 0) return state;
+
+      return {
+        ...state,
+        loan: action.payload,
+        balance: state.balance + action.payload,
+      };
+
     case "payLoan":
-      return { ...state, loan: 0, balance: state.balance - 5000 };
+      return {
+        ...state,
+        loan: 0,
+        balance: state.balance - state.loan,
+      };
     case "closeAccount":
-      return { state: initialState };
+      if (state.loan > 0 || state.balance > 0) return state;
+      return initialState;
     default:
       throw new Error("Invalid action type");
   }
@@ -67,7 +85,7 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            dispatch({ type: "deposit" });
+            dispatch({ type: "deposit", payload: 150 });
           }}
           disabled={!isActive}
         >
@@ -77,7 +95,7 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            dispatch({ type: "withdraw" });
+            dispatch({ type: "withdraw", payload: 50 });
           }}
           disabled={!isActive}
         >
@@ -87,7 +105,7 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            loan === 0 && dispatch({ type: "requestLoan" });
+            loan === 0 && dispatch({ type: "requestLoan", payload: 5000 });
           }}
           disabled={!isActive}
         >
@@ -97,7 +115,7 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            loan > 0 && dispatch({ type: "payLoan" });
+            dispatch({ type: "payLoan" });
           }}
           disabled={!isActive}
         >
