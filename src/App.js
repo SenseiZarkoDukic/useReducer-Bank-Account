@@ -31,13 +31,15 @@ function reducer(state, action) {
     case "deposit":
       return { ...state, balance: state.balance + 150 };
     case "withdraw":
-      return { ...state, balance: state.balance - 50 };
+      return { ...state, balance: state.balance >= 50 && state.balance - 50 };
     case "requestLoan":
       return { ...state, loan: 5000, balance: state.balance + 5000 };
     case "payLoan":
       return { ...state, loan: 0, balance: state.balance - 5000 };
     case "closeAccount":
-      return { ...initialState, balance: 0, isActive: false, loan: 0 };
+      return { state: initialState };
+    default:
+      throw new Error("Invalid action type");
   }
 }
 
@@ -49,8 +51,8 @@ export default function App() {
   return (
     <div className="App">
       <h1>useReducer Bank Account</h1>
-      <p>Balance: {balance}</p>
-      <p>Loan: {loan}</p>
+      <p>Balance: {balance >= 0 && balance}</p>
+      <p>Loan: {loan >= 0 && loan}</p>
 
       <p>
         <button
@@ -105,7 +107,7 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            dispatch({ type: "closeAccount" });
+            balance === 0 && loan === 0 && dispatch({ type: "closeAccount" });
           }}
           disabled={!isActive}
         >
