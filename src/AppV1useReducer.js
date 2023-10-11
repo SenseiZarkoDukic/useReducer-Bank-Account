@@ -1,5 +1,5 @@
 import "./styles.css";
-import { useReducer, useState } from "react";
+import { useReducer } from "react";
 /*
 INSTRUCTIONS / CONSIDERATIONS:
 
@@ -22,6 +22,8 @@ const initialState = {
   balance: 0,
   loan: 0,
   isActive: false,
+  deposit: "",
+  withdraw: "",
 };
 
 function reducer(state, action) {
@@ -30,15 +32,24 @@ function reducer(state, action) {
   switch (action.type) {
     case "openAccount":
       return { ...state, isActive: true, balance: 500 };
-
     case "deposit":
+      return {
+        ...state,
+        deposit: action.payload,
+      };
+    case "addDeposit":
       if (action.payload < 0) return state;
       return {
         ...state,
         balance: state.balance + action.payload,
         deposit: "",
       };
-
+    case "withdrawAmount":
+      if (state.balance < action.payload) return state;
+      return {
+        ...state,
+        withdraw: action.payload,
+      };
     case "withdraw":
       if (state.balance < action.payload) return state;
       return {
@@ -70,14 +81,10 @@ function reducer(state, action) {
 }
 
 export default function App() {
-  const [{ balance, loan, isActive }, dispatch] = useReducer(
+  const [{ balance, loan, isActive, deposit, withdraw }, dispatch] = useReducer(
     reducer,
     initialState
   );
-
-  const [deposit, setDeposit] = useState("");
-  const [withdraw, setWithdraw] = useState("");
-
   return (
     <div className="App">
       <h1>useReducer Bank Account</h1>
@@ -100,13 +107,12 @@ export default function App() {
           value={deposit || ""}
           onChange={(e) => {
             e.preventDefault();
-            setDeposit(Number(e.target.value));
+            dispatch({ type: "deposit", payload: Number(e.target.value) });
           }}
         />
         <button
           onClick={() => {
-            dispatch({ type: "deposit", payload: deposit });
-            setDeposit(0);
+            dispatch({ type: "addDeposit", payload: deposit });
           }}
           disabled={!isActive}
         >
@@ -119,13 +125,15 @@ export default function App() {
           value={withdraw || ""}
           onChange={(e) => {
             e.preventDefault();
-            setWithdraw(Number(e.target.value));
+            dispatch({
+              type: "withdrawAmount",
+              payload: Number(e.target.value),
+            });
           }}
         />
         <button
           onClick={() => {
             dispatch({ type: "withdraw", payload: withdraw });
-            setWithdraw(0);
           }}
           disabled={!isActive}
         >
