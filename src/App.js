@@ -99,7 +99,6 @@ export default function App() {
           type="number"
           value={deposit || ""}
           onChange={(e) => {
-            e.preventDefault();
             setDeposit(Number(e.target.value));
           }}
         />
@@ -118,7 +117,6 @@ export default function App() {
           type="number"
           value={withdraw || ""}
           onChange={(e) => {
-            e.preventDefault();
             setWithdraw(Number(e.target.value));
           }}
         />
