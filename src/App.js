@@ -22,8 +22,8 @@ const initialState = {
   balance: 0,
   loan: 0,
   isActive: false,
-  deposit: 0,
-  withdraw: 0,
+  deposit: "",
+  withdraw: "",
 };
 
 function reducer(state, action) {
@@ -35,14 +35,27 @@ function reducer(state, action) {
     case "deposit":
       return {
         ...state,
-        balance: state.balance + state.deposit,
         deposit: action.payload,
+      };
+    case "addDeposit":
+      if (action.payload < 0) return state;
+      return {
+        ...state,
+        balance: state.balance + action.payload,
+        deposit: "",
+      };
+    case "withdrawAmount":
+      if (state.balance < action.payload) return state;
+      return {
+        ...state,
+        withdraw: action.payload,
       };
     case "withdraw":
       if (state.balance < action.payload) return state;
       return {
         ...state,
         balance: state.balance - action.payload,
+        withdraw: "",
       };
     case "requestLoan":
       if (state.loan > 0) return state;
@@ -92,13 +105,14 @@ export default function App() {
         <input
           type="number"
           value={deposit}
-          onChange={(e) =>
-            dispatch({ type: "deposit", payload: Number(e.target.value) })
-          }
+          onChange={(e) => {
+            e.preventDefault();
+            dispatch({ type: "deposit", payload: Number(e.target.value) });
+          }}
         />
         <button
           onClick={() => {
-            dispatch({ type: "deposit", payload: deposit });
+            dispatch({ type: "addDeposit", payload: deposit });
           }}
           disabled={!isActive}
         >
@@ -106,13 +120,24 @@ export default function App() {
         </button>
       </p>
       <p>
+        <input
+          type="number"
+          value={withdraw}
+          onChange={(e) => {
+            e.preventDefault();
+            dispatch({
+              type: "withdrawAmount",
+              payload: Number(e.target.value),
+            });
+          }}
+        />
         <button
           onClick={() => {
-            dispatch({ type: "withdraw", payload: 50 });
+            dispatch({ type: "withdraw", payload: withdraw });
           }}
           disabled={!isActive}
         >
-          Withdraw 50
+          Withdraw {withdraw}
         </button>
       </p>
       <p>
